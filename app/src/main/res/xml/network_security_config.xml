@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The app is fully offline. The only network traffic allowed is to the
+  loopback HTTP server that serves the bundled web assets (required so that
+  Android WebView treats the page as a secure origin and permits getUserMedia).
+  Cleartext is permitted for 127.0.0.1 only; everything else stays blocked.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>

@@ -1,0 +1,27 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+captures/
+
+# Node (asset minifier). Run `npm install` to restore node_modules; the APK
+# staging step needs terser + csso and is skipped gracefully if they are absent.
+node_modules/
+npm-debug.log*
+
+# Machine-specific SDK path
+local.properties
+
+# Keystores: do not commit real signing keys.
+# debug.keystore is fine to keep since it is a throwaway debug key.
+*.jks
+*.keystore
+!debug.keystore
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,14 @@
+{
+  "name": "polaroid-camera-buildtools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Asset minifier used by the Android build. Run `npm install` once, then the build stages build/stagedAssets automatically.",
+  "scripts": {
+    "postinstall": "echo 'Asset staging is ready. Build with ./gradlew assembleDebug'",
+    "test": "node tools/jsmin/minify.js css app/src/main/assets/www/style.css"
+  },
+  "dependencies": {
+    "terser": "^5.31.0",
+    "csso": "^5.0.5"
+  }
+}

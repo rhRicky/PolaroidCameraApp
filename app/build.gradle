@@ -1,0 +1,107 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'app.polaroidcam.offline'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'app.polaroidcam.offline'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+
+        // English only: no other locale is shipped.
+        resourceConfigurations += ['en']
+    }
+
+    signingConfigs {
+        // Generated automatically by `gradle wrapper` / the template below.
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+        }
+        release {
+            // Keep it simple: this app has no AndroidX dependency, so there is
+            // nothing to shrink or obfuscate. Flip these on if you add libraries.
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                          'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    // Note: aapt already stores .png and .woff2 uncompressed in the APK.
+    // Re-deflating them was measured at only ~0.9% saving, so it is not done.
+}
+
+// ---------------------------------------------------------------------------
+// Web assets: ship the MINIFIED copy, never the readable source tree.
+//
+// app/src/main/assets/www is the source of truth and stays readable (comments
+// intact, full font set) so the source ZIP and anyone editing the project can
+// read it. The APK only needs the small version, so it is staged into
+// build/stagedAssets by the same script the command-line build uses - that way
+// both build paths ship byte-identical assets.
+//
+// Passing -PstageAssets=false (or having no node/script) skips staging and packs
+// the readable tree instead: the app still builds and works, it is only a few
+// hundred KB larger.
+// ---------------------------------------------------------------------------
+def stageScript = rootProject.file('stage_web_assets.sh')
+def stagedDir = layout.buildDirectory.dir('stagedAssets')
+
+if (stageScript.exists() && project.findProperty('stageAssets') != 'false') {
+    tasks.register('stageWebAssets', Exec) {
+        description = 'Prune fonts + minify the web assets into build/stagedAssets'
+        group = 'build'
+        inputs.dir(file('src/main/assets/www'))
+        inputs.file(stageScript)
+        outputs.dir(stagedDir)
+        doFirst { stagedDir.get().asFile.deleteDir() }
+        commandLine 'bash', stageScript.absolutePath,
+                    file('src/main/assets/www').absolutePath,
+                    stagedDir.get().asFile.absolutePath
+    }
+
+    // REPLACE the asset source dirs, do not add to them. src/main/assets/www is
+    // the readable tree and must not also be packed, otherwise every web file
+    // would appear twice in the APK merge and the readable copy could win.
+    android.sourceSets.main.assets.srcDirs = [stagedDir.get().asFile]
+
+    // Everything that reads the assets must run after staging. Naming the tasks
+    // explicitly (rather than only matching merge*Assets) keeps Gradle's task
+    // validation happy: lint in particular reads build/stagedAssets, and without
+    // a declared dependency it fails the build with an implicit-dependency error.
+    tasks.matching { t ->
+        def n = t.name
+        n.startsWith('merge') && n.endsWith('Assets') ||
+        n.startsWith('generate') && n.contains('Lint') ||
+        n.startsWith('lint') || n == 'lintVitalRelease'
+    }.configureEach { dependsOn 'stageWebAssets' }
+}
+
+// ---------------------------------------------------------------------------
+// This project deliberately has NO dependencies: it uses framework APIs only
+// (WebView, MediaStore, java.net) so the APK stays tiny and needs no AndroidX.
+// Do not add implementation() lines unless you also add the AndroidX repositories
+// and flip android.useAndroidX in gradle.properties.
+// ---------------------------------------------------------------------------
+dependencies { }
