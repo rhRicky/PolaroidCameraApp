@@ -1,7 +1,14 @@
 # Polaroid Camera — Android project
 
-Offline Android app that wraps the Polaroid Camera web app. English only,
-framework APIs only (no AndroidX dependency).
+Offline Android app that wraps the Polaroid Camera web app. 
+
+<img width="412" height="915" alt="final_phone" src="https://github.com/user-attachments/assets/6902d98d-74c7-409f-a626-354ac779aa0c" />
+<img width="1080" height="1296" alt="polaroid_photo_20261116T125926" src="https://github.com/user-attachments/assets/dd2ce803-6711-47d5-acec-d85346950d3b" />
+
+
+
+# Details
+Framework APIs only (no AndroidX dependency).
 
 ---
 
